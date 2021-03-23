@@ -1,7 +1,8 @@
-from flask import render_template, url_for, flash, redirect
-from flaskblog import app
-from flaskblog.forms import RegistrationForm, LoginForm
-from flaskblog.models import User, Post
+from flask import Flask, render_template, url_for, flash, redirect
+from flask_env import app
+from flask_env.forms import RegistrationForm, LoginForm
+from flask_env.models import User, Post
+
 
 
 posts = [
@@ -18,8 +19,6 @@ posts = [
         'date_posted': 'April 21, 2018'
     }
 ]
-
-
 @app.route("/")
 @app.route("/home")
 def home():
@@ -35,8 +34,12 @@ def about():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
+        hashed_pass = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hashed_pass)
+        db.session.add(user)
+        db.session.commit()
         flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(url_for('home'))
+        return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
 
@@ -44,9 +47,9 @@ def register():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        if form.email.data == 'admin@blog.com' and form.password.data == 'password':
-            flash('You have been logged in!', 'success')
-            return redirect(url_for('home'))
-        else:
-            flash('Login Unsuccessful. Please check username and password', 'danger')
+    #     if form.email.data == 'admin@blog.com' and form.password.data == 'password':
+        flash(f'You have been logged in! Hello {form.email.data}!', 'success')
+        return redirect(url_for('home'))
+    # else:
+    #     flash('Can not login. Please check username and password', 'danger')
     return render_template('login.html', title='Login', form=form)
