@@ -11,4 +11,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///temp.db'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt()
 login_manger = LoginManager(app)
+login_manger.login_view = 'login'
+login_manger.login_message_category = 'info'
+
+
 from flask_env import routes

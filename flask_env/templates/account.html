@@ -1,0 +1,17 @@
+
+{% extends "layout.html" %}
+{% block content %}
+    <h1> I am {{ current_user.username }}. This is my private wall.</h1>
+    {% for user in users %}
+        <article class="media content-section">
+        <div class="media-body">
+            <div class="article-metadata">
+            <a class="mr-2" href="#"> Id: {{ user.id }} {{ user.username }} </a>
+            <small class="text-muted"> Email: {{ user.email }} </small>
+            </div>
+            <h2><a class="article-title" href="#"></a></h2>
+            <p class="article-content">Post: {{ user.posts }}</p>
+        </div>
+        </article>
+    {% endfor %}
+{% endblock content %}

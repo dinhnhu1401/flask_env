@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
+  {% if current_user.is_authenticated %}
     {% for post in posts %}
         <article class="media content-section">
           <div class="media-body">
@@ -12,4 +13,7 @@
           </div>
         </article>
     {% endfor %}
+  {% else %}
+    <p>Please join us to see more information</p>
+  {% endif %}
 {% endblock content %}
