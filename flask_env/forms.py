@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
@@ -15,17 +16,13 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Sign Up')
 
     def validate_username(self, username):
-        print('--------validate_username------------')
         user = User.query.filter_by(username=username.data).first()
         if user:
-            print('--------user------------')
             raise ValidationError('The username is taken. Please use another one.')
 
     def validate_email(self, email):
-        print('--------validate_email------------')
         user = User.query.filter_by(email=email.data).first()
         if user:
-            print('--------user------------')
             raise ValidationError('The email is taken. Please use another one.')
 
 
@@ -46,6 +43,8 @@ class UpdateAccountForm(FlaskForm):
                            validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
+    picture = FileField('Update Avatar',
+                        validators=[FileAllowed(['jpg', 'png'])])
 
     submit = SubmitField('Update')
 

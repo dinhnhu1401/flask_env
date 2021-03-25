@@ -4,7 +4,8 @@ from flask_env.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from flask_env.models import User, Post
 from flask_login import login_user, current_user, logout_user, login_required
 
-
+import secrets
+import os
 posts = [
     {
         'author': 'Corey Schafer',
@@ -48,9 +49,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        print(user)
         correct_pass = bcrypt.check_password_hash(user.password, form.password.data)
-        print(correct_pass)
         if user and correct_pass:
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
@@ -65,17 +64,33 @@ def logout():
     logout_user()
     return redirect(url_for("home"))
 
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    f_name, f_ext = os.path.splitext(form_picture.filename)
+    pic_fn = random_hex + f_ext
+    pic_path = os.path.join(app.root_path, 'static/img', pic_fn)
+    form_picture.save(pic_path)
+    return pic_fn
+
 @app.route("/account", methods=['GET', 'POST'])
 @login_required
 def account():
     users = User.query.all()
-    print(users)
+    # print(users)
     form = UpdateAccountForm()
     if form.validate_on_submit():
+        if form.picture.data:
+            pic_fn = save_picture(form.picture.data)
+            print(pic_fn)
+            current_user.image_file = pic_fn
         current_user.username = form.username.data
         current_user.email = form.email.data
+        user = User.query.filter_by(email=current_user.email).first()
+        user.image_file = current_user.image_file
+        db.session.add(user)
         db.session.commit()
         flash('Updated OKE', 'success')
+        print(current_user)
         return redirect(url_for('account'))
     elif request.method =='GET':
         form.username.data = current_user.username
